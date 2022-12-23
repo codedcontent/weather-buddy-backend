@@ -20,49 +20,9 @@ app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
  * Keeping the API simple
  */
 
-app.get("/", authenticateToken, (req, res) => {
-  const queryString = {
-    create_user_table: `CREATE TABLE user (
-      user_id INT PRIMARY KEY,
-      first_name VARCHAR(40),
-      last_name VARCHAR(40),
-      email VARCHAR(40),
-      password VARCHAR(40),
-      phone VARCHAR(40),
-      subscription_plan VARCHAR(40),
-      tracking_id VARCHAR(40)
-    )`,
-    create_location_to_track_table: `CREATE TABLE location_to_track (
-      tracking_id INT,
-      location_id VARCHAR(40),
-      latitude VARCHAR(40),
-      longitude VARCHAR(40),
-      PRIMARY KEY (tracking_id, location_id)
-    )`,
-    create_time_to_track_table: `CREATE TABLE time_to_track (
-      location_id VARCHAR(40),
-      time_id VARCHAR(40),
-      time VARCHAR(20),
-      PRIMARY KEY (location_id, time_id)
-    )`,
-    define_user_foreign_key: `
-      ALTER TABLE user ADD FOREIGN KEY (tracking_id) REFERENCES location_to_track (tracking_id) ON DELETE SET NULL
-    `,
-    define_location_foreign_key: `
-      ALTER TABLE location_to_track ADD FOREIGN KEY (location_id) REFERENCES time_to_track (location_id) ON DELETE CASCADE
-    `,
-    select_users: "SELECT * FROM user WHERE user_id = ?",
-  };
-  pool.query(queryString.select_users, [req.user_id], (err, results) => {
-    res.send({ err, results, user_id: req.user_id });
-  });
-
-  // res.json("HELLO");
+app.get("/", (req, res) => {
+  res.json("HELLO");
 });
-
-// Cron jobs
-const cronJobsRoute = require("./routes/cronJobs");
-app.use("/api/crons", cronJobsRoute);
 
 // Auth route
 const auth = require("./routes/auth");
