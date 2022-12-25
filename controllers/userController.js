@@ -1,16 +1,26 @@
 const { profileEditValidation } = require("../validation");
 const { getFirestore } = require("firebase-admin/firestore");
 
+const db = getFirestore();
+
 // Create a new user account
 exports.createAccount = async (req, res) => {
-  const db = getFirestore();
   const { first_name, last_name, phone, uid } = req.body;
 
   // Create user account with their detail on db
   const userCollectionRef = db.doc(`users/${uid}`);
 
   try {
-    await userCollectionRef.set({ first_name, last_name, phone });
+    /**
+     * Users by default create a free account
+     * make the subscription_plan a free account
+     */
+    await userCollectionRef.set({
+      first_name,
+      last_name,
+      phone,
+      subscription_plan: "free",
+    });
     res.status(200).json({
       msg: "Account created successfully",
       status: true,
@@ -45,6 +55,30 @@ exports.updateDetails = (req, res) => {
   const valuesToUpdate = Object.values(form);
 };
 
-exports.getAccountDetails = (req, res) => {
+exports.getAccountDetails = async (req, res) => {
   const { user_id } = req.params;
+  const userDocRef = db.doc(`users/${user_id}`);
+
+  try {
+    // Fetch user document data
+    const doc = await userDocRef.get();
+
+    const weatherBuddyData = doc.data();
+
+    // Tracking details doc
+    const trackingDetailsDoc = db.doc(`users/${user_id}/trackingDetails/data`);
+
+    // Get the details collection
+    const trackingDocResp = await trackingDetailsDoc.get();
+
+    const trackingDetails = trackingDocResp.data();
+
+    res.status(200).json({ ...weatherBuddyData, ...trackingDetails });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Something went wrong, try again later.",
+      status: false,
+      error,
+    });
+  }
 };
