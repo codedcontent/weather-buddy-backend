@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const pool = require("./config/database");
+require("./config/database");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -26,19 +26,19 @@ app.get("/", (req, res) => {
 
 // Auth route
 const auth = require("./routes/auth");
-app.use("/api/auth", auth);
+app.use("/api/v1/auth", auth);
 
 // User accounts route
 const user = require("./routes/user");
-app.use("/api/users", user);
+app.use("/api/v1/users", user);
 
 // Subscription plans route
 const subPlansRouter = require("./routes/subsPlans");
-app.use("/api/sub-plans", subPlansRouter);
+app.use("/api/v1/sub-plans", subPlansRouter);
 
 // Messaging route
 const weatherRoute = require("./routes/weather");
-app.use("/api/weather", weatherRoute);
+app.use("/api/v1/weather", weatherRoute);
 
 app.listen(port, () => {
   console.log("Server is running on port:" + port);

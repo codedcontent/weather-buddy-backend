@@ -4,7 +4,7 @@ const userController = require("../controllers/userController");
 const authenticateToken = require("../utils/authenticateToken");
 
 // Get user account details
-router.get("/:user_id", authenticateToken, userController.getAccountDetails);
+router.get("/:user_id", userController.getAccountDetails);
 
 // Create a new user account
 router.post("/", userController.createAccount);

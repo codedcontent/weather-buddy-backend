@@ -1,18 +1,26 @@
-const bcrypt = require("bcryptjs");
-const pool = require("../config/database");
-const { registerValidation, profileEditValidation } = require("../validation");
+const { profileEditValidation } = require("../validation");
+const { getFirestore } = require("firebase-admin/firestore");
 
 // Create a new user account
 exports.createAccount = async (req, res) => {
-  const { first_name, last_name, email, phone, password } = req.body;
+  const db = getFirestore();
+  const { first_name, last_name, phone, uid } = req.body;
 
-  // Validate the users inputs
-  const { error } = registerValidation(req.body);
-  if (error) {
-    const validationErrorMsg = error.details[0].message;
-    const invalidFormItem = error.details[0].path[0];
+  // Create user account with their detail on db
+  const userCollectionRef = db.doc(`users/${uid}`);
 
-    return res.status(400).json({ validationErrorMsg, invalidFormItem });
+  try {
+    await userCollectionRef.set({ first_name, last_name, phone });
+    res.status(200).json({
+      msg: "Account created successfully",
+      status: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Something went wrong on the server, try again later.",
+      status: false,
+      err: error,
+    });
   }
 };
 
