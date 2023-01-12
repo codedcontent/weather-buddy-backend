@@ -34,14 +34,12 @@ exports.createAccount = async (req, res) => {
   }
 };
 
-exports.updateDetails = (req, res) => {
-  const { form } = req.body;
+exports.updateDetails = async (req, res) => {
+  const { first_name, last_name, phone } = req.body;
   const { user_id } = req.params;
 
-  if (!form) return res.status(403).json("Forbidden. Must send form.");
-
   // Validate the form details first
-  const { error } = profileEditValidation(form);
+  const { error } = profileEditValidation({ first_name, last_name, phone });
 
   if (error) {
     const validationErrorMsg = error.details[0].message;
@@ -50,9 +48,18 @@ exports.updateDetails = (req, res) => {
     return res.status(400).json({ validationErrorMsg, invalidFormItem });
   }
 
-  // Form inputs is valid, proceed with profile edition.
-  const keyToUpdate = Object.keys(form);
-  const valuesToUpdate = Object.values(form);
+  // A reference to the users account details
+  const userAccountRef = db.doc(`users/${user_id}/`);
+
+  try {
+    // Update the users details
+    await userAccountRef.update({ first_name, last_name, phone });
+
+    res.status(200).json({ status: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: false, error });
+  }
 };
 
 exports.getAccountDetails = async (req, res) => {
@@ -81,4 +88,12 @@ exports.getAccountDetails = async (req, res) => {
       error,
     });
   }
+};
+
+exports.changeSubscriptionPlan = async (req, res) => {
+  const { subscription_plan } = req.body;
+
+  console.log(subscription_plan);
+
+  res.status(200).json({ status: true });
 };

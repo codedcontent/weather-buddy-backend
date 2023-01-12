@@ -10,6 +10,9 @@ router.get("/:user_id", userController.getAccountDetails);
 router.post("/", userController.createAccount);
 
 // Update users account details
-router.patch("/:user_id", authenticateToken, userController.updateDetails);
+router.patch("/:user_id", userController.updateDetails);
+
+// Update users subscription plan
+router.patch("/plan/:user_id", userController.changeSubscriptionPlan);
 
 module.exports = router;
